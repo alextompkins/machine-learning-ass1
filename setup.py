@@ -2,7 +2,8 @@ from setuptools import setup, find_packages
 
 requirements = [
     'jupyter',
-    'scikit-learn'
+    'scikit-learn',
+    'matplotlib'
 ]
 
 dev_requirements = [
