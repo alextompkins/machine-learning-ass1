@@ -9,7 +9,7 @@ SEED = 1337
 
 
 def split_data(dataset):
-    X_train, X_test, y_train, y_test = train_test_split(dataset.data, dataset.target, train_size=0.6)
+    X_train, X_test, y_train, y_test = train_test_split(dataset.data, dataset.target, train_size=0.6, random_state=SEED)
     training_data = Bunch()
     training_data.data = X_train
     training_data.target = y_train
