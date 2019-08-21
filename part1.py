@@ -47,8 +47,6 @@ def evaluate_depth(training_dataset, max_depth, k):
         accuracy = metrics.accuracy_score(y_test, y_predictions)
         accuracies.append(accuracy)
 
-        display_tree(decision_tree, training_dataset)
-
     avg_num_nodes = sum(num_nodes) / k
     avg_accuracy = sum(accuracies) / k
     return avg_accuracy, avg_num_nodes
