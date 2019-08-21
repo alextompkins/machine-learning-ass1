@@ -3,21 +3,22 @@ from sklearn import datasets, metrics
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.model_selection import KFold, train_test_split
 from sklearn.utils import Bunch
-from matplotlib import pyplot
 
 
 def split_data(dataset):
-    X_train, X_test, y_train, y_test = train_test_split(dataset.data, dataset.target)
+    X_train, X_test, y_train, y_test = train_test_split(dataset.data, dataset.target, train_size=0.6)
     training_data = Bunch()
     training_data.data = X_train
     training_data.target = y_train
-    training_data.feature_names = dataset.feature_names
+    if 'feature_names' in dataset:
+        training_data.feature_names = dataset.feature_names
     training_data.target_names = dataset.target_names
 
     testing_data = Bunch()
     testing_data.data = X_test
     testing_data.target = y_test
-    testing_data.feature_names = dataset.feature_names
+    if 'feature_names' in dataset:
+        testing_data.feature_names = dataset.feature_names
     testing_data.target_names = dataset.target_names
 
     return training_data, testing_data
@@ -43,11 +44,17 @@ def evaluate_depth(training_dataset, max_depth, k):
         accuracy = metrics.accuracy_score(y_test, y_predictions)
         accuracies.append(accuracy)
 
-        plot_tree(decision_tree, feature_names=training_dataset.feature_names, class_names=training_dataset.target_names)
+        display_tree(decision_tree, training_dataset)
 
     avg_num_nodes = sum(num_nodes) / k
     avg_accuracy = sum(accuracies) / k
     return avg_accuracy, avg_num_nodes
+
+
+def display_tree(decision_tree, dataset):
+    feature_names = dataset.get('feature_names', list(f'X{i}' for i in range(dataset.data.shape[1])))
+    target_names = [str(name) for name in dataset.target_names]
+    plot_tree(decision_tree, feature_names=feature_names, class_names=target_names)
 
 
 def print_results(results):
@@ -66,24 +73,40 @@ def print_results(results):
         output[accuracy_label].append(results[max_depth][0])
         output[num_nodes_label].append(results[max_depth][1])
 
-    print(pandas.DataFrame(output).to_string(index=False, float_format='{:.3f}'.format))
+    print(pandas.DataFrame(output).to_string(index=False, float_format='{:.4f}'.format))
 
 
-# def find_best_max_depth(results):
-#     for
+def find_best_max_depth(results):
+    curr_accuracy = 0
+
+    for max_depth, result in results.items():
+        accuracy, num_nodes = result
+        if accuracy - curr_accuracy > 0.01:
+            curr_accuracy = accuracy
+        else:
+            return max_depth, curr_accuracy
 
 
 def main():
-    iris = datasets.load_iris()
-    training_partition, testing_partition = split_data(iris)
+    sets = {
+        'Iris': datasets.load_iris(),
+        'Breast Cancer': datasets.load_breast_cancer(),
+        'Digits': datasets.load_digits()
+    }
 
-    results = dict()
-    for max_depth in range(1, 20 + 1):
-        avg_accuracy, avg_num_nodes = evaluate_depth(training_partition, max_depth=max_depth, k=7)
-        results[max_depth] = (avg_accuracy, avg_num_nodes)
+    for name, dataset in sets.items():
+        training_partition, testing_partition = split_data(dataset)
 
-    print_results(results)
-    # pyplot.show()
+        results = dict()
+        for max_depth in range(1, 20 + 1):
+            print(f'DEBUG | Dataset: "{name}" - Max Depth: {max_depth}')
+            avg_accuracy, avg_num_nodes = evaluate_depth(training_partition, max_depth=max_depth, k=7)
+            results[max_depth] = (avg_accuracy, avg_num_nodes)
+
+        print(name)
+        print_results(results)
+        best_max_depth = find_best_max_depth(results)
+        print(f'Best max depth: {best_max_depth}')
 
 
 if __name__ == '__main__':
