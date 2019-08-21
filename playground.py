@@ -5,6 +5,9 @@ from sklearn.model_selection import KFold, train_test_split
 from sklearn.utils import Bunch
 
 
+SEED = 1337
+
+
 def split_data(dataset):
     X_train, X_test, y_train, y_test = train_test_split(dataset.data, dataset.target, train_size=0.6)
     training_data = Bunch()
@@ -29,14 +32,14 @@ def evaluate_depth(training_dataset, max_depth, k):
     num_nodes = []
     accuracies = []
 
-    kfold = KFold(n_splits=k)
+    kfold = KFold(n_splits=k, random_state=SEED)
     for train_index, test_index in kfold.split(X, y):
         # Get training/testing sets
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
 
         # Construct a decision tree model
-        decision_tree = DecisionTreeClassifier(max_depth=max_depth).fit(X_train, y_train)
+        decision_tree = DecisionTreeClassifier(max_depth=max_depth, random_state=SEED).fit(X_train, y_train)
 
         # Find num of nodes / accuracy
         num_nodes.append(decision_tree.tree_.node_count)
@@ -105,8 +108,16 @@ def main():
 
         print(name)
         print_results(results)
-        best_max_depth = find_best_max_depth(results)
+        best_max_depth, best_accuracy = find_best_max_depth(results)
         print(f'Best max depth: {best_max_depth}')
+
+        # Using best max depth, train a decision tree using the entire dataset
+        decision_tree = DecisionTreeClassifier(max_depth=best_max_depth, random_state=SEED)\
+            .fit(training_partition.data, training_partition.target)
+        y_predictions = decision_tree.predict(testing_partition.data)
+        overall_accuracy = metrics.accuracy_score(testing_partition.target, y_predictions)
+        print(f'Overall accuracy of classifier: {overall_accuracy:.4f}')
+        print(f'Number of nodes in overall tree: {decision_tree.tree_.node_count}')
 
 
 if __name__ == '__main__':
