@@ -100,7 +100,6 @@ def main():
 
         results = dict()
         for max_depth in range(1, 20 + 1):
-            print(f'DEBUG | Dataset: "{name}" - Max Depth: {max_depth}')
             avg_accuracy, avg_num_nodes = evaluate_depth(training_partition, max_depth=max_depth, k=7)
             results[max_depth] = (avg_accuracy, avg_num_nodes)
 

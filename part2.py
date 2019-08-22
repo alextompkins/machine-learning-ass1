@@ -41,7 +41,6 @@ def visualise_data(data, target):
 
 def main():
     data, target = generate_random_data(20, 20, 2000)
-    visualise_data(data, target)
 
     X_train, X_test, y_train, y_test = train_test_split(data, target, train_size=0.6, random_state=SEED)
     results = []
@@ -62,8 +61,9 @@ def main():
                 ACCURACY_LABEL: accuracy
             })
 
-            if max_depth == 8 and training_size == 500:
+            if max_depth == 10 and training_size == 1000:
                 tree_to_display = decision_tree
+                visualise_data(X_train_resized, y_train_resized)
 
     # Print pivoted table of accuracy for each Max Depth / Training Size combo
     data_frame = DataFrame(results)

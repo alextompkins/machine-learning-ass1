@@ -41,7 +41,7 @@ def create_piecewise_function(c, intercept):
 def main():
     dataframe = read_data_from_csv()
 
-    # Add dummy variables and interactions terms based on the 3 levels of the categorical variable
+    # Add dummy variables and interaction terms based on the 3 levels of the categorical variable
     # These will also be learned by the model to provide greater accuracy
     dataframe['DummyB'] = dataframe['X4'].apply(lambda category: 1 if category == 'B' else 0)
     dataframe['DummyC'] = dataframe['X4'].apply(lambda category: 1 if category == 'C' else 0)
@@ -64,8 +64,9 @@ def main():
     predictions = dataframe[['X1', 'X2', 'X3', 'X4']].apply(predict, axis=1)
     mean_sq_error = metrics.mean_squared_error(y, predictions)
     r_squared_score = metrics.r2_score(y, predictions)
-    print(f'Mean Squared Error: {mean_sq_error}\n'
-          f'R^2 score: {r_squared_score}')
+
+    print(f'Mean Squared Error: {mean_sq_error:.3f}\n'
+          f'R^2 score: {r_squared_score:.4f}')
 
 
 if __name__ == '__main__':
