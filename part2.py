@@ -42,14 +42,17 @@ def visualise_data(data, target):
 def main():
     data, target = generate_random_data(20, 20, 2000)
 
+    # Split data into 60% training and 40% testing
     X_train, X_test, y_train, y_test = train_test_split(data, target, train_size=0.6, random_state=SEED)
     results = []
     tree_to_display = None
 
+    # Iterate through various training data sizes
     for training_size in (5, 10, 50, 100, 500, 1000):
         X_train_resized = X_train[:training_size]
         y_train_resized = y_train[:training_size]
 
+        # Iterate through max tree depths between 1 and 10
         for max_depth in range(1, 10 + 1):
             decision_tree = DecisionTreeClassifier(max_depth=max_depth, random_state=SEED)\
                 .fit(X_train_resized, y_train_resized)
