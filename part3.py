@@ -34,8 +34,7 @@ def create_piecewise_function(c, intercept):
         coeffs = weight_map[row['X4']]
         return coeffs[0] * row['X1'] + coeffs[1] * row['X2'] + coeffs[2] * row['X3'] + coeffs[3]
 
-    print(weights)
-    return predict
+    return predict, weights
 
 
 def main():
@@ -53,14 +52,14 @@ def main():
     x = dataframe[[col for col in dataframe if col not in ('X4', 'Y')]]
     y = dataframe['Y']
     regression = linear_model.LinearRegression().fit(x, y)
-    coeffs = {x.columns.values[i]: int(round(coeff)) for i, coeff in enumerate(regression.coef_)}
-    intercept = int(round(regression.intercept_))
+    coeffs = {x.columns.values[i]: coeff for i, coeff in enumerate(regression.coef_)}
+    intercept = regression.intercept_
 
     print(coeffs)
     print(f'Intercept: {intercept}')
 
     # Test accuracy of our learned model
-    predict = create_piecewise_function(coeffs, intercept)
+    predict, weights = create_piecewise_function(coeffs, intercept)
     predictions = dataframe[['X1', 'X2', 'X3', 'X4']].apply(predict, axis=1)
     mean_sq_error = metrics.mean_squared_error(y, predictions)
     r_squared_score = metrics.r2_score(y, predictions)
