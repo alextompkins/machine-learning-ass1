@@ -1,7 +1,7 @@
 import numpy as np
 from collections import deque
 from sklearn.tree import _tree as ctree
-import matplotlib.pyplot as plt
+from matplotlib import pyplot
 from matplotlib.patches import Rectangle
 
 
@@ -66,9 +66,9 @@ def decision_areas(tree_classifier, maxrange, x=0, y=1, n_features=None):
 
 def plot_areas(rectangles):
     for rect in rectangles:
-        color = ['b', 'r'][int(rect[4])]
+        color = ['r', 'g'][int(rect[4])]
         # print(rect[0], rect[1], rect[2] - rect[0], rect[3] - rect[1])
         rp = Rectangle([rect[0], rect[2]],
                        rect[1] - rect[0],
                        rect[3] - rect[2], color=color, alpha=0.3)
-        plt.gca().add_artist(rp)
+        pyplot.gca().add_artist(rp)
