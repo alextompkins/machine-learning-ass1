@@ -1,3 +1,5 @@
+from math import log
+
 import pandas
 from sklearn import datasets, metrics
 from sklearn.tree import DecisionTreeClassifier, plot_tree
@@ -79,13 +81,16 @@ def print_results(results):
 
 def find_best_max_depth(results):
     curr_accuracy = 0
+    curr_num_nodes = 0
 
     for max_depth, result in results.items():
         accuracy, num_nodes = result
-        if accuracy - curr_accuracy > 0.01:
+        diff_metric = (accuracy - curr_accuracy) / log(num_nodes - curr_num_nodes)
+        if diff_metric > 0.01:
             curr_accuracy = accuracy
+            curr_num_nodes = num_nodes
         else:
-            return max_depth, curr_accuracy
+            return max_depth - 1
 
 
 def main():
