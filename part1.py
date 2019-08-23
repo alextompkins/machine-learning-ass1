@@ -93,33 +93,32 @@ def find_best_max_depth(results):
             return max_depth - 1
 
 
+def process_dataset(name, dataset):
+    training_partition, testing_partition = split_data(dataset)
+
+    results = dict()
+    for max_depth in range(1, 20 + 1):
+        avg_accuracy, avg_num_nodes = evaluate_depth(training_partition, max_depth=max_depth, k=7)
+        results[max_depth] = (avg_accuracy, avg_num_nodes)
+
+    print(name)
+    print_results(results)
+    best_max_depth = find_best_max_depth(results)
+    print(f'Best max depth: {best_max_depth}')
+
+    # Using best max depth, train a decision tree using the entire dataset
+    decision_tree = DecisionTreeClassifier(max_depth=best_max_depth, random_state=SEED) \
+        .fit(training_partition.data, training_partition.target)
+    y_predictions = decision_tree.predict(testing_partition.data)
+    overall_accuracy = metrics.accuracy_score(testing_partition.target, y_predictions)
+    print(f'Overall accuracy of classifier: {overall_accuracy:.4f}')
+    print(f'Number of nodes in overall tree: {decision_tree.tree_.node_count}')
+
+
 def main():
-    sets = {
-        'Iris': datasets.load_iris(),
-        'Breast Cancer': datasets.load_breast_cancer(),
-        'Digits': datasets.load_digits()
-    }
-
-    for name, dataset in sets.items():
-        training_partition, testing_partition = split_data(dataset)
-
-        results = dict()
-        for max_depth in range(1, 20 + 1):
-            avg_accuracy, avg_num_nodes = evaluate_depth(training_partition, max_depth=max_depth, k=7)
-            results[max_depth] = (avg_accuracy, avg_num_nodes)
-
-        print(name)
-        print_results(results)
-        best_max_depth, best_accuracy = find_best_max_depth(results)
-        print(f'Best max depth: {best_max_depth}')
-
-        # Using best max depth, train a decision tree using the entire dataset
-        decision_tree = DecisionTreeClassifier(max_depth=best_max_depth, random_state=SEED)\
-            .fit(training_partition.data, training_partition.target)
-        y_predictions = decision_tree.predict(testing_partition.data)
-        overall_accuracy = metrics.accuracy_score(testing_partition.target, y_predictions)
-        print(f'Overall accuracy of classifier: {overall_accuracy:.4f}')
-        print(f'Number of nodes in overall tree: {decision_tree.tree_.node_count}')
+    process_dataset('Iris', datasets.load_iris())
+    process_dataset('Breast Cancer', datasets.load_breast_cancer())
+    process_dataset('Digits', datasets.load_digits())
 
 
 if __name__ == '__main__':
